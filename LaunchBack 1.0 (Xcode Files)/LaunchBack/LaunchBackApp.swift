@@ -61,7 +61,7 @@ struct LaunchpadGlassApp: App {
                 let appName = item.replacingOccurrences(of: ".app", with: "")
                 let icon = NSWorkspace.shared.icon(forFile: fullPath)
                 icon.size = NSSize(width: 64, height: 64)
-                let category = Self.categorizeApp(name: appName)
+                let category = categorizeApp(at: fullPath)
                 foundApps.append(AppInfo(name: appName, icon: icon, path: fullPath, category: category))
                 
                 
@@ -85,6 +85,13 @@ struct LaunchpadGlassApp: App {
             "Photo Booth": "Creative"
         ]
         return categories[name] ?? "Utilities"
+    static func categorizeApp(at path: String) -> String {
+        guard
+            let bundle = Bundle(path: path),
+            let categoryType = bundle.object(forInfoDictionaryKey: "LSApplicationCategoryType") as? String
+        else { return "Other" }
+
+        return AppCategorizer.getLocalizedCategory(for: categoryType)
     }
 }
 
